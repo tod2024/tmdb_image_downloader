@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify,send_from_directory
 from process_images import process_images_from_csv, clear_directory
 from datetime import datetime
 import zipfile
@@ -15,14 +15,16 @@ OUTPUT_FOLDER = "static/TMDBImages"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+# Define the path to the root directory where index.html is located
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
 
 @app.route("/")
 def index():
-
     """
-    Renders the main page with the file upload form.
+    Serve the index.html file from the project root.
     """
-    return render_template("index.html")
+    return send_from_directory(PROJECT_ROOT, 'index.html')
 
 
 @app.route("/upload", methods=["POST"])
