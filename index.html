@@ -3,162 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TMDB Image Downloader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>TMDB Image Downloader with Progress</title>
     <style>
-        /* Global Styles */
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+        /* Global Reset */
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
+            box-sizing: border-box;
         }
 
+        /* Body Base Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #333, #555);
+            color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 10px;
+        }
+
+        /* Header */
         h1 {
-            font-size: 2.5rem;
-            color: #fff;
+            text-align: center;
             margin-bottom: 20px;
+            color: yellow;
+            font-size: 26px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Upload Section */
+        .upload-container {
+            background: #222;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
             text-align: center;
         }
 
-        /* Form Styling */
-        .form-container {
-            background-color: #333;
-            padding: 30px;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 600px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        label {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            display: block;
-            font-weight: 500;
-        }
-
-        input[type="file"] {
-            background-color: #444;
-            color: #fff;
-            border: 1px solid #555;
-            padding: 12px;
-            border-radius: 5px;
-            width: 100%;
-            margin-bottom: 20px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        button {
-            background-color: #FFBC00;
-            color: #fff;
+        #processButton {
+            padding: 10px 20px;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 5px;
-            width: 100%;
+            background-color: yellow;
+            color: black;
             cursor: pointer;
+            border-radius: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        #processButton:hover {
+            transform: scale(1.1);
+        }
+
+        /* Progress Bar UI */
+        #progress-container {
+            width: 100%;
+            max-width: 500px;
+            height: 25px;
+            background-color: #555;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #FFD700, #FFA500);
+            width: 0;
+            transition: width 0.2s ease-in-out;
+        }
+
+        /* Download Section */
+        #download-container {
+            display: none;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        #download-btn {
+            padding: 10px 20px;
+            background-color: yellow;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
             transition: background-color 0.3s ease;
         }
 
-        button:hover {
-            background-color: #e65c00;
+        #download-btn:hover {
+            background-color: #ffd700;
         }
 
-        /* Status Message */
-        #status {
-            margin-top: 20px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #fff;
-            text-align: center;
-        }
-
-        #status a {
-            color: #FFBC00;
-            text-decoration: none;
-        }
-
-        #status a:hover {
-            text-decoration: underline;
-        }
-
-        /* Media Queries */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            .form-container {
-                padding: 20px;
-            }
-            input[type="file"], button {
-                font-size: 1rem;
-            }
+        /* Logs */
+        #logs {
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+            margin: 10px 0;
+            width: 90%;
+            background: #111;
+            color: #f0f0f0;
+            font-size: 14px;
+            border: 1px solid yellow;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Upload CSV to Download TMDB Images</h1>
+    <h1>TMDB Backdrops & Logo Downloader with Progress</h1>
 
-    <div class="form-container">
-        <form id="uploadForm" enctype="multipart/form-data" method="POST">
-            <label for="file">Upload CSV File:</label>
-            <input type="file" id="file" name="file" accept=".csv" required>
-            <button type="submit">Upload and Process</button>
-        </form>
-
-        <div id="status"></div>
+    <!-- Upload Section -->
+    <div class="upload-container">
+        <input type="file" id="fileInput" accept=".csv">
+        <button id="processButton">Start Processing</button>
     </div>
 
+    <!-- Progress Bar Section -->
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <!-- Logs Section -->
+    <div id="logs"></div>
+
+    <!-- Download Section -->
+    <div id="download-container">
+        <button id="download-btn">Download TMDB Images</button>
+    </div>
+
+    <!-- PapaParse and JSZip CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <script>
-        document.getElementById("uploadForm").onsubmit = async (e) => {
-            e.preventDefault(); // Prevent default form submission behavior
+        const TMDB_API_KEY = '7023be09f4209997fe159bee5f0fc3b5';
+        let processedMovies = [];
+        let zip = new JSZip();
 
-            const formData = new FormData();
-            const fileInput = document.getElementById("file");
-            const statusDiv = document.getElementById("status");
+        function log(message) {
+            const logDiv = document.getElementById("logs");
+            const logEntry = document.createElement("div");
+            logEntry.innerText = message;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
 
-            // Check if file is selected
+        function updateProgressBar(completed, total) {
+            const progressPercentage = (completed / total) * 100;
+            document.getElementById("progress-bar").style.width = progressPercentage + "%";
+        }
+
+        async function fetchMovieImages(movieId) {
+            const response = await fetch(
+                `https://api.themoviedb.org/3/movie/${movieId}/images?api_key=${TMDB_API_KEY}`
+            );
+            const data = await response.json();
+            return data;
+        }
+
+        async function processCSV(data) {
+            const totalMovies = data.length;
+            let completed = 0;
+
+            for (const movie of data) {
+                try {
+                    const response = await fetch(
+                        `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(movie["Movie Name"])}`
+                    );
+                    const movieData = await response.json();
+
+                    if (movieData?.results?.[0]) {
+                        const movieId = movieData.results[0].id;
+                        const imagesData = await fetchMovieImages(movieId);
+
+                        const backdropPath = imagesData?.backdrops?.[0]?.file_path
+                            ? `https://image.tmdb.org/t/p/original/${imagesData.backdrops[0].file_path}`
+                            : null;
+
+                        const logoPath = imagesData?.logos?.[0]?.file_path
+                            ? `https://image.tmdb.org/t/p/original/${imagesData.logos[0].file_path}`
+                            : null;
+
+                        if (backdropPath) {
+                            const responseBackdrop = await fetch(backdropPath);
+                            const blobBackdrop = await responseBackdrop.blob();
+                            zip.folder("TMDBimages/backdrops").file(`${movie["Movie Name"]}_backdrop.jpg`, blobBackdrop);
+                        }
+
+                        if (logoPath) {
+                            const responseLogo = await fetch(logoPath);
+                            const blobLogo = await responseLogo.blob();
+                            zip.folder("TMDBimages/logos").file(`${movie["Movie Name"]}_logo.jpg`, blobLogo);
+                        }
+                    }
+
+                    completed++;
+                    updateProgressBar(completed, totalMovies);
+                    log(`Processed ${movie["Movie Name"]}`);
+                } catch (error) {
+                    log(`Error processing ${movie["Movie Name"]}`);
+                }
+            }
+
+            log("Processing completed.");
+            const blob = await zip.generateAsync({ type: "blob" });
+            const downloadLink = document.createElement("a");
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = "TMDBimages.zip";
+            downloadLink.click();
+            log("Downloaded TMDB images successfully.");
+            document.getElementById("download-container").style.display = "block";
+        }
+
+        document.getElementById("processButton").addEventListener("click", async () => {
+            const fileInput = document.getElementById("fileInput");
             if (!fileInput.files.length) {
-                statusDiv.innerText = "Please select a CSV file to upload.";
+                alert("Please upload a CSV file!");
                 return;
             }
 
-            formData.append("file", fileInput.files[0]);
-            statusDiv.innerText = "Processing...";
-
-            try {
-                // Send upload request to the server
-                const response = await fetch("/upload", {
-                    method: "POST",
-                    body: formData,
-                });
-
-                const result = await response.json();
-
-                // Handle success or error response
-                if (response.ok && result.download_url) {
-                    statusDiv.innerHTML = `
-                        Processing complete.
-                        <a href="${result.download_url}" target="_blank" download>
-                            Download Processed Images
-                        </a>
-                    `;
-                } else {
-                    statusDiv.innerText = "Error: " + (result.error || "Failed to process images.");
-                }
-            } catch (err) {
-                statusDiv.innerText = "Error processing request.";
-            }
-        };
+            log("Starting processing...");
+            Papa.parse(fileInput.files[0], {
+                header: true,
+                complete: async (results) => {
+                    await processCSV(results.data);
+                },
+            });
+        });
     </script>
 </body>
 </html>
