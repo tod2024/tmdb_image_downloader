@@ -30,7 +30,7 @@
         h1 {
             text-align: center;
             margin-bottom: 20px;
-            color: yellow;
+            color: rgba(255, 188, 0);
             font-size: 26px;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
         }
@@ -48,7 +48,7 @@
         #processButton {
             padding: 10px 20px;
             border: none;
-            background-color: yellow;
+            background-color: rgba(255, 188, 0);
             color: black;
             cursor: pointer;
             border-radius: 4px;
@@ -59,6 +59,17 @@
             transform: scale(1.1);
         }
 
+        #download-CSV {
+            padding: 10px 20px;
+            border: none;
+            color:rgba(255, 188, 0);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: transform 0.2s ease;
+            margin-top: 25px;
+        }
+
+      
         /* Logs Section */
         #logs {
             max-height: 250px;
@@ -69,7 +80,7 @@
             background: #111;
             color: #f0f0f0;
             font-size: 14px;
-            border: 1px solid yellow;
+            border: 1px solid rgba(255, 188, 0);
             border-radius: 5px;
         }
 
@@ -82,7 +93,7 @@
 
         #download-btn {
             padding: 10px 20px;
-            background-color: yellow;
+            background-color: rgba(255, 188, 0);
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -122,6 +133,11 @@
         <input type="file" id="fileInput" accept=".csv">
         <button id="processButton">Start Processing</button>
     </div>
+
+      <!-- Download Movies CSV Section -->
+      <a href="movies.csv" target="_blank">
+        <b><u id="download-CSV">Download CSV Template</u></b>
+        </a>
 
     <!-- Progress Bar Section -->
     <div id="progress-container">
@@ -258,6 +274,9 @@ async function processCSV(data) {
                 log("Download started...");
             }
         });
+
+
+        
     </script>
 </body>
 
