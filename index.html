@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,22 +59,18 @@
             transform: scale(1.1);
         }
 
-        /* Progress Bar UI */
-        #progress-container {
-            width: 100%;
-            max-width: 500px;
-            height: 25px;
-            background-color: #555;
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 15px 0;
-        }
-
-        #progress-bar {
-            height: 100%;
-            background: linear-gradient(to right, #FFD700, #FFA500);
-            width: 0;
-            transition: width 0.2s ease-in-out;
+        /* Logs Section */
+        #logs {
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+            margin: 10px 0;
+            width: 90%;
+            background: #111;
+            color: #f0f0f0;
+            font-size: 14px;
+            border: 1px solid yellow;
+            border-radius: 5px;
         }
 
         /* Download Section */
@@ -97,21 +94,26 @@
             background-color: #ffd700;
         }
 
-        /* Logs */
-        #logs {
-            max-height: 250px;
-            overflow-y: auto;
-            padding: 10px;
-            margin: 10px 0;
-            width: 90%;
-            background: #111;
-            color: #f0f0f0;
-            font-size: 14px;
-            border: 1px solid yellow;
-            border-radius: 5px;
+        /* Progress Bar */
+        #progress-container {
+            width: 100%;
+            max-width: 500px;
+            height: 25px;
+            background-color: #555;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #FFD700, #FFA500);
+            width: 0;
+            transition: width 0.2s ease-in-out;
         }
     </style>
 </head>
+
 <body>
     <h1>TMDB Backdrops & Logo Downloader with Progress</h1>
 
@@ -140,7 +142,7 @@
 
     <script>
         const TMDB_API_KEY = '7023be09f4209997fe159bee5f0fc3b5';
-        let processedMovies = [];
+        let zipBlob = null; // This will store the zip blob
         let zip = new JSZip();
 
         function log(message) {
@@ -173,30 +175,36 @@
                     const response = await fetch(
                         `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(movie["Movie Name"])}`
                     );
-                    const movieData = await response.json();
 
+                    const movieData = await response.json();
                     if (movieData?.results?.[0]) {
                         const movieId = movieData.results[0].id;
                         const imagesData = await fetchMovieImages(movieId);
 
-                        const backdropPath = imagesData?.backdrops?.[0]?.file_path
+                        const backdropUrl = imagesData?.backdrops?.[0]?.file_path
                             ? `https://image.tmdb.org/t/p/original/${imagesData.backdrops[0].file_path}`
                             : null;
 
-                        const logoPath = imagesData?.logos?.[0]?.file_path
+                        const logoUrl = imagesData?.logos?.[0]?.file_path
                             ? `https://image.tmdb.org/t/p/original/${imagesData.logos[0].file_path}`
                             : null;
 
-                        if (backdropPath) {
-                            const responseBackdrop = await fetch(backdropPath);
+                        if (backdropUrl) {
+                            const responseBackdrop = await fetch(backdropUrl);
                             const blobBackdrop = await responseBackdrop.blob();
-                            zip.folder("TMDBimages/backdrops").file(`${movie["Movie Name"]}_backdrop.jpg`, blobBackdrop);
+                            zip.folder("TMDBimages/backdrops").file(
+                                `${movie["Movie Name"]}_backdrop.jpg`,
+                                blobBackdrop
+                            );
                         }
 
-                        if (logoPath) {
-                            const responseLogo = await fetch(logoPath);
+                        if (logoUrl) {
+                            const responseLogo = await fetch(logoUrl);
                             const blobLogo = await responseLogo.blob();
-                            zip.folder("TMDBimages/logos").file(`${movie["Movie Name"]}_logo.jpg`, blobLogo);
+                            zip.folder("TMDBimages/logos").file(
+                                `${movie["Movie Name"]}_logo.jpg`,
+                                blobLogo
+                            );
                         }
                     }
 
@@ -208,13 +216,8 @@
                 }
             }
 
-            log("Processing completed.");
-            const blob = await zip.generateAsync({ type: "blob" });
-            const downloadLink = document.createElement("a");
-            downloadLink.href = URL.createObjectURL(blob);
-            downloadLink.download = "TMDBimages.zip";
-            downloadLink.click();
-            log("Downloaded TMDB images successfully.");
+            log("Processing complete.");
+            zipBlob = await zip.generateAsync({ type: "blob" });
             document.getElementById("download-container").style.display = "block";
         }
 
@@ -225,7 +228,6 @@
                 return;
             }
 
-            log("Starting processing...");
             Papa.parse(fileInput.files[0], {
                 header: true,
                 complete: async (results) => {
@@ -233,6 +235,28 @@
                 },
             });
         });
+
+        function pad(number) {
+            return number < 10 ? '0' + number : number;
+        }
+
+        function getCurrentTimestamp() {
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+            return timestamp;
+        }
+
+        document.getElementById("download-btn").addEventListener("click", () => {
+            if (zipBlob) {
+                const timestamp = getCurrentTimestamp();
+                const downloadLink = document.createElement("a");
+                downloadLink.href = URL.createObjectURL(zipBlob);
+                downloadLink.download = `TMDBimages_${timestamp}.zip`;
+                downloadLink.click();
+                log("Download started...");
+            }
+        });
     </script>
 </body>
+
 </html>
