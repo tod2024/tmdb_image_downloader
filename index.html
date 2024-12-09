@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TMDB Image Downloader with Progress</title>
+    
+
     <style>
         /* Global Reset */
         * {
@@ -17,12 +19,13 @@
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #333, #555);
+            background-image: url('images/tod-BG-nologo.jpg');
             color: #f4f4f4;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            /* height: 100vh; */
             padding: 10px;
         }
 
@@ -126,6 +129,8 @@
 </head>
 
 <body>
+    <img src="images/TOD-LOGO.svg" alt="TOD Icon" style='margin-top: 30px;margin-bottom: 20px; image-rendering: auto; width:275px; height:90px;'>
+
     <h1>TMDB Backdrops & Logo Downloader</h1>
 
     <!-- Upload Section -->
@@ -135,7 +140,7 @@
     </div>
 
       <!-- Download Movies CSV Section -->
-      <a href="template.csv" target="_blank">
+      <a href="movies.csv" target="_blank">
         <b><u id="download-CSV">Download CSV Template</u></b>
         </a>
 
