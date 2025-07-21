@@ -141,6 +141,7 @@
     <div class="drop-zone" id="dropZone">
       Drag & Drop CSV file here or <label for="fileInput" style="text-decoration: underline; cursor: pointer;">browse</label>
       <input type="file" id="fileInput" accept=".csv" />
+      <div id="file-name" style="text-align: center; margin-bottom: 1rem; color: var(--accent); font-weight: 500;"></div>
     </div>
 
     <button id="proceed-btn">Proceed</button>
@@ -188,12 +189,20 @@
       e.preventDefault();
       dropZone.classList.remove("dragover");
       const file = e.dataTransfer.files[0];
-      if (file && file.type === "text/csv") handleCSV(file);
+if (file && file.type === "text/csv") {
+  document.getElementById("file-name").textContent = `📄 ${file.name}`;
+  handleCSV(file);
+}
+
     });
 
     fileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
-      if (file && file.type === "text/csv") handleCSV(file);
+if (file && file.type === "text/csv") {
+  document.getElementById("file-name").textContent = `📄 ${file.name}`;
+  handleCSV(file);
+}
+
     });
 
     proceedBtn.addEventListener("click", () => {
